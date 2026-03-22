@@ -1,0 +1,5 @@
+{
+  "name": "tts-toggle",
+  "description": "Toggle TTS on/off for Claude responses",
+  "instructions": "Run the command: cd /Users/wesbragagt/dev/jarvis && ./scripts/tts-state.sh toggle\n\nThis will toggle the TTS feature on or off. Show the output to the user."
+}

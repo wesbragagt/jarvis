@@ -1,0 +1,5 @@
+{
+  "name": "tts-status",
+  "description": "Check if TTS is enabled or disabled",
+  "instructions": "Run the command: cd /Users/wesbragagt/dev/jarvis && ./scripts/tts-state.sh status\n\nThis will check whether TTS is currently enabled or disabled. Show the output to the user."
+}

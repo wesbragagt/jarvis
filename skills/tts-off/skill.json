@@ -1,0 +1,5 @@
+{
+  "name": "tts-off",
+  "description": "Disable TTS for Claude responses",
+  "instructions": "Run the command: cd /Users/wesbragagt/dev/jarvis && ./scripts/tts-state.sh disable\n\nThis will disable the TTS feature so Claude's responses are silent. Show the output to the user."
+}

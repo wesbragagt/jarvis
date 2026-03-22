@@ -1,0 +1,20 @@
+{
+  "name": "jarvis-tts",
+  "version": "1.0.0",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "tts": "bun run src/index.ts",
+    "dev": "bun --watch src/index.ts",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "latest",
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
