@@ -19,37 +19,46 @@ Claude Code response
 
 The TypeScript CLI handles input (stdin, file, or `--text`), spawns the Python script via `uv run`, and streams the resulting WAV to `mpv` for playback. If `mpv` is unavailable it falls back to macOS `say`.
 
-## Prerequisites
-
-| Tool | Purpose | Install |
-|------|---------|---------|
-| [Bun](https://bun.sh) | TypeScript runtime | `curl -fsSL https://bun.sh/install \| bash` |
-| [uv](https://github.com/astral-sh/uv) | Python package manager | `brew install uv` |
-| `mpv` | Audio playback | `brew install mpv` |
-| `espeak-ng` | Kokoro phoneme fallback | `brew install espeak-ng` |
-
-Python 3.10–3.12 is required. `uv` manages the Python environment automatically.
-
 ## Getting started
 
-### 1. Clone and install
+### 1. Clone
 
 ```bash
 git clone https://github.com/wesbragagt/jarvis.git
 cd jarvis
-bun install   # TypeScript dependencies
-uv sync       # Python dependencies (Kokoro, soundfile, numpy)
 ```
 
-> `uv sync` downloads Kokoro model weights (~300 MB) on first run. Subsequent runs load from cache and start in under a second.
+### 2. Enter the dev environment
 
-### 2. Test it
+The `flake.nix` installs all prerequisites (Bun, uv, mpv, espeak-ng) and runs `bun install` automatically via [direnv](https://direnv.net).
+
+**If you don't have Nix**, install [Determinate Nix](https://determinate.systems/nix-installer/) first:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+```
+
+Then allow direnv to load the environment:
+
+```bash
+direnv allow
+```
+
+The shell will activate automatically on every subsequent `cd` into the project.
+
+### 3. Install Python dependencies
+
+```bash
+uv sync
+```
+
+> Downloads Kokoro model weights (~300 MB) on first run. Subsequent runs load from cache.
+
+### 4. Test it
 
 ```bash
 echo "Hello, I am Jarvis" | bun run tts
 ```
-
-You should hear audio through your speakers. If you see a warning about `mpv`, install it with `brew install mpv`.
 
 ### 3. Integrate with Claude Code
 
@@ -256,19 +265,18 @@ jarvis/
 ## Troubleshooting
 
 **No audio output**
-- Confirm `mpv` is installed: `mpv --version`. Install with `brew install mpv`.
+- Make sure direnv is active (`direnv allow` if not already done).
 - Check system volume and output device.
 - Test end-to-end: `echo "test" | bun run tts`
 
 **`espeak-ng` not found warning**
-- Kokoro uses espeak-ng as a phoneme fallback. Install with `brew install espeak-ng`.
-- TTS will still work without it for most inputs.
+- You're likely outside the direnv environment. Run `direnv reload`.
 
 **First run is slow**
 - Kokoro downloads model weights (~300 MB) on the first `uv sync`. After that, startup is fast.
 
-**`uv: command not found`**
-- Install uv: `brew install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`
+**`nix: command not found`**
+- Install [Determinate Nix](https://determinate.systems/nix-installer/): `curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install`
 
 **TTS state is stuck**
 - Check the state file: `cat ~/.jarvis-tts-state`
