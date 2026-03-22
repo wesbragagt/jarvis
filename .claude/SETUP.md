@@ -60,9 +60,7 @@
       ▼
 ┌──────────────┐
 │  Run TTS     │
-│  • ElevenLabs│
-│    OR        │
-│  • macOS say │
+│  • Kokoro    │
 └──────────────┘
 ```
 
@@ -79,20 +77,12 @@ The wrapper script `scripts/tts-with-check.sh`:
 
 ### Change Voice
 
-**macOS voices:**
 ```bash
 # Set default in .env
-MACOS_VOICE=Samantha
+KOKORO_VOICE=am_adam
 
 # Or use --voice flag
-bun run tts --voice Samantha --text "Hello"
-```
-
-**ElevenLabs voices (optional):**
-```bash
-# Add API key to .env
-ELEVENLABS_API_KEY=your_key_here
-ELEVENLABS_VOICE_ID=21m00Tcm4TlvDq8ikWAM
+bun run tts --voice am_adam --text "Hello"
 ```
 
 ### Auto-enable on startup
