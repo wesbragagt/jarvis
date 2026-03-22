@@ -46,14 +46,32 @@ echo "Hello, I am Jarvis" | bun run tts
 
 ### 4. Integrate with Claude Code
 
-Install the `/tts` skill to control Jarvis from inside Claude Code:
+Symlink the skill directory so it stays in sync with the repo:
+
+```bash
+ln -sf "$(pwd)/skills/tts" ~/.claude/skills/tts
+```
+
+Then use `/tts on` inside Claude Code to enable TTS. Jarvis will speak every response automatically.
+
+#### Global install (use from any project)
+
+If you want `/tts` available in every Claude Code session, copy the skill files and point them at this repo:
 
 ```bash
 mkdir -p ~/.claude/skills/tts
 cp skills/tts/skill.json ~/.claude/skills/tts/
+cp skills/tts/skill.md ~/.claude/skills/tts/
 ```
 
-Then use `/tts on` inside Claude Code to enable TTS. Jarvis will speak every response automatically.
+Then edit `~/.claude/skills/tts/skill.md` and replace the dynamic project-root resolution with the absolute path to this repo:
+
+```bash
+# Replace the PROJECT_ROOT lines with the hardcoded path, e.g.:
+PROJECT_ROOT=/Users/yourname/dev/jarvis
+```
+
+This means the global skill always calls the scripts in this repo regardless of which project you are working in.
 
 ---
 
