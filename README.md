@@ -30,115 +30,30 @@ cd jarvis
 
 ### 2. Enter the dev environment
 
-The `flake.nix` installs all prerequisites (Bun, uv, mpv, espeak-ng) and runs `bun install` automatically via [direnv](https://direnv.net).
-
-**If you don't have Nix**, install [Determinate Nix](https://determinate.systems/nix-installer/) first:
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
-```
-
-Then allow direnv to load the environment:
+Requires [Nix](https://determinate.systems/nix-installer/) and [direnv](https://direnv.net). The `flake.nix` installs all prerequisites (Bun, uv, mpv, espeak-ng) and runs `bun install` + `uv sync` automatically.
 
 ```bash
 direnv allow
 ```
 
-The shell will activate automatically on every subsequent `cd` into the project.
+> `uv sync` downloads Kokoro model weights (~300 MB) on first run. Subsequent runs load from cache.
 
-### 3. Install Python dependencies
-
-```bash
-uv sync
-```
-
-> Downloads Kokoro model weights (~300 MB) on first run. Subsequent runs load from cache.
-
-### 4. Test it
+### 3. Test it
 
 ```bash
 echo "Hello, I am Jarvis" | bun run tts
 ```
 
-### 3. Integrate with Claude Code
+### 4. Integrate with Claude Code
 
-Pick one of the integration methods below.
-
----
-
-## Claude Code integration
-
-### Option A: Keybinding (speak on demand)
-
-Press a key to speak the last Claude response whenever you want.
-
-Add to `~/.claude/keybindings.json`:
-
-```json
-{
-  "keybindings": [
-    {
-      "key": "ctrl+shift+s",
-      "command": "cd /path/to/jarvis && ./scripts/tts-with-check.sh",
-      "description": "Speak last response (respects TTS toggle state)"
-    }
-  ]
-}
-```
-
-Replace `/path/to/jarvis` with the absolute path to this repo.
-
-### Option B: Auto-speak every response (hook)
-
-Add to `~/.claude/settings.json` to have every Claude response spoken automatically:
-
-```json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cd /path/to/jarvis && ./scripts/tts-with-check.sh"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-The `tts-with-check.sh` wrapper respects the enabled/disabled toggle state, so you can silence Jarvis without removing the hook.
-
----
-
-## Controlling TTS state
-
-Jarvis stores its on/off state in `~/.jarvis-tts-state`. Toggle it from the terminal or from within Claude Code using the `/tts` skill.
-
-### From the terminal
+Install the `/tts` skill to control Jarvis from inside Claude Code:
 
 ```bash
-bun run tts:on       # Enable
-bun run tts:off      # Disable
-bun run tts:toggle   # Flip current state
-bun run tts:status   # Print current state
+mkdir -p ~/.claude/skills/tts
+cp skills/tts/skill.json ~/.claude/skills/tts/
 ```
 
-### From inside Claude Code
-
-Use the `/tts` slash command to control Jarvis without leaving your session:
-
-```
-/tts on
-/tts off
-/tts toggle
-/tts status
-```
-
-> The `/tts` skill is defined in `skills/tts/skill.json`. Install it to `~/.claude/skills/tts/` to make it available inside Claude Code. See the [Claude Code skills documentation](https://docs.anthropic.com/en/docs/claude-code/skills) for setup instructions.
+Then use `/tts on` inside Claude Code to enable TTS. Jarvis will speak every response automatically.
 
 ---
 

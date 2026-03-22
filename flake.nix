@@ -26,6 +26,7 @@
             echo "  uv:       $(uv --version)"
 
             bun install
+            uv sync
           '';
         };
       });
