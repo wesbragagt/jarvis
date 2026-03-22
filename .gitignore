@@ -107,6 +107,14 @@ web_modules/
 # JARVIS TTS state
 .jarvis-tts-state
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.python-version
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

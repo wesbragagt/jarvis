@@ -54,7 +54,7 @@ export class AudioPlayer {
    */
   private async fallbackToSay(text?: string): Promise<void> {
     try {
-      const message = text || 'ElevenLabs is currently unavailable. Using system voice instead.';
+      const message = text || 'Audio playback failed. Using system voice instead.';
       const proc = Bun.spawn(['say', '-v', 'Daniel', message]);
       await proc.exited;
     } catch (error) {

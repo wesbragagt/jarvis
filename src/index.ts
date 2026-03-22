@@ -3,7 +3,7 @@ import { parseArgs } from 'node:util';
 import { TTSClient } from './clients/tts';
 import { AudioPlayer } from './audio/player';
 import { InputHandler } from './input';
-import type { TTSConfig, CLIArgs } from './types';
+import type { CLIArgs } from './types';
 
 /**
  * Main CLI entry point
@@ -41,33 +41,15 @@ async function main() {
     const text = await InputHandler.getText(cliArgs);
     InputHandler.validateText(text);
 
+    const voice = values.voice || process.env.KOKORO_VOICE || 'af_heart';
+    const ttsClient = new TTSClient({ voice });
     const audioPlayer = new AudioPlayer();
-    const apiKey = process.env.ELEVENLABS_API_KEY;
 
-    // Use ElevenLabs if API key is available, otherwise use macOS say
-    if (apiKey) {
-      // ElevenLabs TTS
-      console.log('🎙️  Generating speech with ElevenLabs...');
+    console.log('🎙️  Generating speech with Kokoro...');
+    const audioStream = await ttsClient.streamTTS(text);
 
-      const ttsConfig: TTSConfig = {
-        apiKey,
-        voiceId: values.voice || process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM',
-        stability: 0.5,
-        similarityBoost: 0.75,
-        modelId: 'eleven_turbo_v2',
-      };
-
-      const ttsClient = new TTSClient(ttsConfig);
-      const audioStream = await ttsClient.streamTTS(text);
-
-      console.log('🔊 Playing audio...');
-      await audioPlayer.play(audioStream, text);
-    } else {
-      // macOS say fallback
-      console.log('🔊 Speaking with macOS voice...');
-      const voice = values.voice || process.env.MACOS_VOICE || 'Daniel';
-      await audioPlayer.playText(text, voice);
-    }
+    console.log('🔊 Playing audio...');
+    await audioPlayer.play(audioStream, text);
 
     console.log('✅ Done');
     process.exit(0);
@@ -91,7 +73,7 @@ function showHelp() {
 ║         JARVIS TTS - Claude Code Voice Hook             ║
 ╚══════════════════════════════════════════════════════════╝
 
-Convert text to speech using ElevenLabs TTS.
+Convert text to speech using Kokoro (local, offline).
 
 USAGE:
   bun run tts [OPTIONS]
@@ -99,41 +81,27 @@ USAGE:
 OPTIONS:
   -t, --text <text>     Text to speak
   -f, --file <path>     Read text from file
-  -v, --voice <id>      Voice ID or name
+  -v, --voice <name>    Kokoro voice name (default: af_heart)
   -h, --help            Show this help
 
 EXAMPLES:
-  # From stdin (uses macOS say by default)
   echo "Hello, world" | bun run tts
-
-  # Direct text
   bun run tts --text "Hello, world"
-
-  # From file
   bun run tts --file response.txt
-
-  # Custom macOS voice
-  bun run tts --voice Samantha --text "Different voice"
-
-  # With ElevenLabs (if API key set)
-  export ELEVENLABS_API_KEY=your_key
-  bun run tts --voice 21m00Tcm4TlvDq8ikWAM --text "Hi"
+  bun run tts --voice am_adam --text "Different voice"
 
 ENVIRONMENT:
-  ELEVENLABS_API_KEY      Optional: Use ElevenLabs TTS (high quality)
-  ELEVENLABS_VOICE_ID     Optional: Default ElevenLabs voice
-  MACOS_VOICE             Optional: Default macOS voice (default: Daniel)
+  KOKORO_VOICE    Default voice name (default: af_heart)
 
-MACOS VOICES:
-  List available voices: say -v ?
-  Popular: Daniel, Samantha, Alex, Karen, Moira, Fiona
+VOICES (American English):
+  af_heart        Warm female (default)
+  af_bella        Expressive female
+  am_adam         Male
+  am_michael      Male
 
-HOOK SETUP:
-  Add to ~/.claude/keybindings.json:
-  {
-    "key": "ctrl+shift+s",
-    "command": "cd /Users/wesbragagt/dev/jarvis && bun run tts"
-  }
+SETUP:
+  pip install kokoro>=0.9.4 soundfile
+  brew install espeak-ng
 `);
 }
 

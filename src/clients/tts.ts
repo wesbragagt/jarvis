@@ -1,77 +1,35 @@
-import type { TTSConfig } from '../types';
 import { TTSError } from '../types';
-import { retry } from '../utils/retry';
+import { join } from 'node:path';
 
-const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1';
-const DEFAULT_VOICE_ID = '21m00Tcm4TlvDq8ikWAM'; // Rachel
+const SCRIPT_PATH = join(import.meta.dir, '../../scripts/kokoro_speak.py');
+const DEFAULT_VOICE = 'af_heart';
 
 export class TTSClient {
-  private apiKey: string;
-  private voiceId: string;
-  private stability: number;
-  private similarityBoost: number;
-  private modelId: string;
+  private voice: string;
 
-  constructor(config: TTSConfig) {
-    if (!config.apiKey) {
-      throw new TTSError('API key is required');
-    }
-
-    this.apiKey = config.apiKey;
-    this.voiceId = config.voiceId || DEFAULT_VOICE_ID;
-    this.stability = config.stability ?? 0.5;
-    this.similarityBoost = config.similarityBoost ?? 0.75;
-    this.modelId = config.modelId || 'eleven_turbo_v2';
+  constructor(config: { voice?: string } = {}) {
+    this.voice = config.voice || DEFAULT_VOICE;
   }
 
-  /**
-   * Convert text to speech and return audio stream (with retry)
-   */
-  async streamTTS(text: string, voiceId?: string): Promise<ReadableStream<Uint8Array>> {
-    return retry(async () => {
-      const voice = voiceId || this.voiceId;
-      const url = `${ELEVENLABS_API_URL}/text-to-speech/${voice}/stream`;
+  async streamTTS(text: string, voice?: string): Promise<ReadableStream<Uint8Array>> {
+    const selectedVoice = voice || this.voice;
 
-      try {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Accept': 'audio/mpeg',
-            'Content-Type': 'application/json',
-            'xi-api-key': this.apiKey,
-          },
-          body: JSON.stringify({
-            text: text,
-            model_id: this.modelId,
-            voice_settings: {
-              stability: this.stability,
-              similarity_boost: this.similarityBoost,
-            },
-          }),
-        });
+    try {
+      const proc = Bun.spawn(['uv', 'run', SCRIPT_PATH, '--voice', selectedVoice], {
+        stdin: 'pipe',
+        stdout: 'pipe',
+        stderr: 'pipe',
+      });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new TTSError(
-            `TTS API error: ${response.statusText} - ${errorText}`,
-            response.status.toString(),
-            response.status
-          );
-        }
+      proc.stdin.write(text);
+      proc.stdin.end();
 
-        if (!response.body) {
-          throw new TTSError('No response body received');
-        }
-
-        return response.body;
-      } catch (error) {
-        if (error instanceof TTSError) {
-          throw error;
-        }
-        throw new TTSError(
-          `Failed to convert text to speech: ${error instanceof Error ? error.message : 'Unknown error'}`
-        );
-      }
-    }, { maxAttempts: 2 });
+      return proc.stdout;
+    } catch (error) {
+      if (error instanceof TTSError) throw error;
+      throw new TTSError(
+        `Failed to generate speech: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 }

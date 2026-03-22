@@ -1,5 +1,0 @@
-{
-  "name": "tts-on",
-  "description": "Enable TTS for Claude responses",
-  "instructions": "Run the command: cd /Users/wesbragagt/dev/jarvis && ./scripts/tts-state.sh enable\n\nThis will enable the TTS feature so Claude's responses are spoken aloud. Show the output to the user."
-}

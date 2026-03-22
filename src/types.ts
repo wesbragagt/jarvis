@@ -2,11 +2,7 @@
  * Configuration for TTS client
  */
 export interface TTSConfig {
-  apiKey: string;
-  voiceId?: string;
-  stability?: number;      // 0-1, default 0.5
-  similarityBoost?: number; // 0-1, default 0.75
-  modelId?: string;        // elevenlabs model
+  voice?: string; // Kokoro voice name, default: af_heart
 }
 
 /**

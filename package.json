@@ -6,6 +6,10 @@
   "private": true,
   "scripts": {
     "tts": "bun run src/index.ts",
+    "tts:on": "scripts/tts-state.sh enable",
+    "tts:off": "scripts/tts-state.sh disable",
+    "tts:toggle": "scripts/tts-state.sh toggle",
+    "tts:status": "scripts/tts-state.sh status",
     "dev": "bun --watch src/index.ts",
     "test": "bun test"
   },

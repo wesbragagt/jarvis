@@ -1,99 +1,99 @@
-# JARVIS TTS - Claude Code Voice Hook
+# Jarvis TTS
 
-Convert text to speech using ElevenLabs TTS. Designed as an on-demand hook for Claude Code to speak responses aloud.
-
-## Features
-
-- 🎙️ **Dual TTS modes**: High-quality ElevenLabs OR built-in macOS voices
-- 🔊 **Works out of the box** - no API key required (uses macOS `say`)
-- ⚡ **Fast**: ~400ms with ElevenLabs, instant with macOS voices
-- 🎯 **Claude Code integration** via keybindings or commands
-- 🛠️ **Built with Bun** for maximum performance
-- 🔄 **Automatic fallback**: ElevenLabs → mpv → macOS say
+Local text-to-speech for Claude Code using [Kokoro](https://github.com/hexgrad/kokoro) — offline, no API key required.
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) installed
-- macOS with `say` command (built-in)
-- Optional: ElevenLabs API key for higher quality ([get one here](https://elevenlabs.io))
-- Optional: `mpv` for better streaming (`brew install mpv`)
+- [Bun](https://bun.sh)
+- [uv](https://github.com/astral-sh/uv)
+- `mpv` for audio playback: `brew install mpv`
+- `espeak-ng` for Kokoro phoneme fallback: `brew install espeak-ng`
 
-## Installation
+## Setup
 
 ```bash
-# Navigate to project
-cd /Users/wesbragagt/dev/jarvis
-
-# Install dependencies (minimal - uses Bun built-ins)
 bun install
-
-# Setup environment
-cp .env.example .env
-# Add your ELEVENLABS_API_KEY to .env
+uv sync
 ```
-
-## Configuration
-
-Create `.env` file (optional):
-
-```bash
-# Optional: Use ElevenLabs for high-quality TTS
-# If not set, uses macOS say command
-# ELEVENLABS_API_KEY=your_api_key_here
-# ELEVENLABS_VOICE_ID=21m00Tcm4TlvDq8ikWAM  # Rachel (default)
-
-# Optional: Default macOS voice
-# MACOS_VOICE=Daniel  # Default
-```
-
-### Available Voices
-
-**macOS Voices (built-in, no API key needed):**
-- `Daniel` - Male, clear (default)
-- `Samantha` - Female, friendly
-- `Alex` - Male, natural
-- `Karen` - Female, Australian
-- `Moira` - Female, Irish
-- `Fiona` - Female, Scottish
-
-List all: `say -v ?`
-
-**ElevenLabs Voices (requires API key):**
-- `21m00Tcm4TlvDq8ikWAM` - Rachel (calm female)
-- `EXAVITQu4vr4xnSDxMaL` - Bella (soft female)
-- `ErXwobaYiN019PkySvjV` - Antoni (well-rounded male)
-- `VR6AewLTigWG4xSOukaG` - Arnold (crisp male)
-
-Find more at [ElevenLabs Voice Library](https://elevenlabs.io/voice-library).
 
 ## Usage
 
-### Command Line
-
 ```bash
-# From stdin (uses macOS say by default)
-echo "Hello, world" | bun run tts
+# From stdin
+echo "Hello world" | bun run tts
 
 # Direct text
-bun run tts --text "Hello, world"
+bun run tts --text "Hello world"
 
-# From file
-bun run tts --file response.txt
-
-# Custom macOS voice
-bun run tts --voice Samantha --text "Different voice"
-
-# With ElevenLabs (if API key is set)
-export ELEVENLABS_API_KEY=your_key
-bun run tts --voice 21m00Tcm4TlvDq8ikWAM --text "High quality"
-
-# Show help
-bun run tts --help
+# Custom voice
+bun run tts --voice am_adam --text "Hello world"
 ```
 
-### As Claude Code Hook
+### Voices
 
-**Option 1: Keybinding with Toggle (Recommended)**
+Set a default via env: `KOKORO_VOICE=am_adam`
+
+**American English** (`lang_code='a'`)
+
+| Voice | Gender | Grade |
+|-------|--------|-------|
+| `af_heart` | F | A (default) |
+| `af_bella` | F | A- |
+| `af_aoede` | F | C+ |
+| `af_kore` | F | C+ |
+| `af_sarah` | F | C+ |
+| `af_nova` | F | C+ |
+| `af_sky` | F | C- |
+| `af_alloy` | F | C |
+| `af_jessica` | F | D |
+| `af_nicole` | F | B- |
+| `am_puck` | M | C+ |
+| `am_michael` | M | C+ |
+| `am_fenrir` | M | C+ |
+| `am_echo` | M | D |
+| `am_eric` | M | D |
+| `am_onyx` | M | D |
+| `am_adam` | M | F+ |
+| `am_liam` | M | C |
+| `am_santa` | M | D- |
+
+**British English** (`lang_code='b'`)
+
+| Voice | Gender | Grade |
+|-------|--------|-------|
+| `bf_emma` | F | B- |
+| `bf_isabella` | F | C |
+| `bf_alice` | F | D |
+| `bf_lily` | F | D |
+| `bm_george` | M | B- |
+| `bm_fable` | M | C |
+| `bm_lewis` | M | C |
+| `bm_daniel` | M | D |
+
+**Other languages**
+
+| Voice | Language |
+|-------|----------|
+| `jf_alpha`, `jf_gongitsune`, `jf_nezuko`, `jf_tebukuro`, `jm_kumo` | Japanese |
+| `zf_xiaobei`, `zf_xiaoni`, `zf_xiaoxiao`, `zf_xiaoyi`, `zm_yunjian`, `zm_yunxi`, `zm_yunxia`, `zm_yunyang` | Mandarin Chinese |
+| `ef_dora`, `em_alex`, `em_santa` | Spanish |
+| `ff_siwis` | French |
+| `hf_alpha`, `hf_beta`, `hm_omega`, `hm_psi` | Hindi |
+| `if_sara`, `im_nicola` | Italian |
+| `pf_dora`, `pm_alex`, `pm_santa` | Brazilian Portuguese |
+
+## Claude Code Integration
+
+### Skills
+
+Use these slash commands in any Claude Code session:
+
+- `/tts-on` — enable TTS (Kokoro speaks each response)
+- `/tts-off` — disable TTS
+- `/tts-toggle` — flip current state
+- `/tts-status` — check current state
+
+### Keybinding (speak on demand)
 
 Add to `~/.claude/keybindings.json`:
 
@@ -103,160 +103,25 @@ Add to `~/.claude/keybindings.json`:
     {
       "key": "ctrl+shift+s",
       "command": "cd /Users/wesbragagt/dev/jarvis && ./scripts/tts-with-check.sh",
-      "description": "Speak last response with TTS (respects toggle state)"
+      "description": "Speak last response (respects toggle state)"
     }
   ]
 }
 ```
-
-Then use the skills to control TTS:
-- `/tts-on` - Enable TTS
-- `/tts-off` - Disable TTS
-- `/tts-toggle` - Toggle TTS on/off
-- `/tts-status` - Check current status
-
-**Option 2: Always-On Keybinding**
-
-```json
-{
-  "keybindings": [
-    {
-      "key": "ctrl+shift+s",
-      "command": "cd /Users/wesbragadt/dev/jarvis && bun run tts",
-      "description": "Always speak last response"
-    }
-  ]
-}
-```
-
-**Option 3: User Prompt Submit Hook**
-
-Add to `~/.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "user-prompt-submit": "cd /Users/wesbragagt/dev/jarvis && ./scripts/tts-with-check.sh"
-  }
-}
-```
-
-This will automatically speak every Claude response when TTS is enabled.
-
-## Architecture
-
-```
-┌─────────────┐
-│ User Input  │
-└──────┬──────┘
-       │
-       ▼
-┌──────────────────┐
-│  Input Handler   │
-│  (stdin/file)    │
-└──────┬───────────┘
-       │
-       ▼
-┌──────────────────┐
-│   TTS Client     │
-│  (ElevenLabs)    │
-│  + Retry Logic   │
-└──────┬───────────┘
-       │
-       ▼
-┌──────────────────┐
-│  Audio Player    │
-│ (mpv or say)     │
-└──────┬───────────┘
-       │
-       ▼
-   🔊 Audio Out
-```
-
-## Development
-
-```bash
-# Run in dev mode (auto-reload)
-bun --watch src/index.ts
-
-# Run tests
-bun test
-
-# Type check
-bunx tsc --noEmit
-```
-
-## Troubleshooting
-
-### No API key needed!
-- The tool works out of the box with macOS `say` voices
-- ElevenLabs is optional for higher quality TTS
-- If you want ElevenLabs, set `ELEVENLABS_API_KEY` in `.env`
-
-### No audio output
-- Check system volume
-- Verify speaker is not muted
-- Test with: `echo "test" | bun run tts`
-- Check audio output device in system settings
-
-### "mpv not found" warning
-- This is okay! The tool will automatically fall back to `say`
-- To install mpv: `brew install mpv`
-
-### Audio playback failed
-- If mpv fails, falls back to `say` command
-- Verify `say` works: `say "test"`
-- On Linux, may need: `sudo apt-get install mpv`
-
-### API rate limits
-- ElevenLabs free tier: 10,000 characters/month
-- If exceeded, upgrade plan or wait for monthly reset
-- Tool automatically retries with exponential backoff
-
-### Network errors
-- Tool retries automatically (up to 2 attempts)
-- Check internet connection
-- Verify ElevenLabs API status: https://status.elevenlabs.io
-
-## Performance
-
-- **TTS API latency**: ~300ms (using `eleven_turbo_v2` model)
-- **Audio playback start**: < 100ms after first chunk
-- **Total latency**: ~400ms from command to audio
-- **Memory footprint**: < 20MB during playback
-- **Dependencies**: Zero npm packages (Bun built-ins only)
-
-## API Documentation
-
-- [ElevenLabs API Docs](https://elevenlabs.io/docs)
-- [Bun Documentation](https://bun.sh/docs)
-- [Claude Code Hooks](https://docs.anthropic.com/claude/docs/claude-code)
 
 ## Project Structure
 
 ```
 src/
 ├── index.ts           # CLI entry point
-├── types.ts           # TypeScript types
-├── input.ts           # Input handler (stdin/file/text)
-├── clients/
-│   └── tts.ts         # ElevenLabs client
-├── audio/
-│   └── player.ts      # Audio playback (mpv/say)
-└── utils/
-    └── retry.ts       # Retry logic
+├── clients/tts.ts     # Kokoro client (spawns Python via uv)
+├── audio/player.ts    # Playback via mpv
+└── input.ts           # stdin / file / text input
 
-tests:
-├── clients/tts.test.ts
-└── input.test.ts
+scripts/
+├── kokoro_speak.py    # Python: Kokoro → WAV → stdout
+├── tts-state.sh       # Read/write ~/.jarvis-tts-state
+└── tts-with-check.sh  # Run TTS only if state is enabled
+
+.claude/skills/        # Claude Code slash commands
 ```
-
-## License
-
-MIT
-
-## Credits
-
-- Inspired by [Charles Sieg's article](https://www.charlessieg.com/articles/giving-claude-code-a-voice-with-elevenlabs.html)
-- Built with [Bun](https://bun.sh)
-- Powered by [ElevenLabs](https://elevenlabs.io)

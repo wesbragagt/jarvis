@@ -1,0 +1,5 @@
+{
+  "name": "tts",
+  "description": "Speak Claude's response using the kokoro TTS engine",
+  "instructions": "~/.claude/skills/tts/skill.md"
+}
