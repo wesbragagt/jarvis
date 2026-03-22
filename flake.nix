@@ -14,10 +14,10 @@
       {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            bun
-            uv
-            mpv
-            espeak-ng
+            bun        # TypeScript runtime and package manager
+            uv         # Python package manager — runs kokoro_speak.py and manages Kokoro dependencies
+            mpv        # Audio playback — streams WAV output from Kokoro to speakers
+            espeak-ng  # Phoneme fallback used internally by Kokoro for out-of-vocabulary words
           ];
 
           shellHook = ''

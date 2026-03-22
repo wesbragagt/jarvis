@@ -107,6 +107,12 @@ web_modules/
 # JARVIS TTS state
 .jarvis-tts-state
 
+# PRD / planning documents
+prd/
+
+# Local Claude Code instructions
+CLAUDE.md
+
 # Python
 __pycache__/
 *.pyc
